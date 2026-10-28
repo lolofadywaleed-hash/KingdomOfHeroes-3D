@@ -1,0 +1,3 @@
+// Minimal Android build template placeholder
+// This file is replaced by the actual template during CI
+apply from: "config.gradle"
