@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=3 uid="uid://e5an7p8q9r0s"]
+
+[ext_resource type="Script" path="res://scripts/hud.gd" id="1"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="Hearts" type="HBoxContainer" parent="."]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 60.0
+
+[node name="Heart1" type="Label" parent="Hearts"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "❤️"
+
+[node name="Heart2" type="Label" parent="Hearts"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "❤️"
+
+[node name="Heart3" type="Label" parent="Hearts"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "❤️"
+
+[node name="Coins" type="HBoxContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -150.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 60.0
+grow_horizontal = 0
+
+[node name="CoinIcon" type="Label" parent="Coins"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "🪙"
+
+[node name="CoinCount" type="Label" parent="Coins"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "0"
+vertical_alignment = 1
