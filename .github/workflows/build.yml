@@ -31,9 +31,8 @@ jobs:
         mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 godot
         wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz
         mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
-        unzip -q Godot_v${GODOT_VERSION}-stable_export_templates.tpz -d /tmp/templates_unzip
-        find /tmp/templates_unzip -name "android_debug.apk" -o -name "android_release.apk" | xargs -I{} cp {} ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
-        ls -lh ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
+        tar -xvf Godot_v${GODOT_VERSION}-stable_export_templates.tpz -C /tmp/
+        cp -v /tmp/templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>&1 | tail -10
         
     - name: Setup Android SDK
       run: |
@@ -55,7 +54,7 @@ jobs:
       run: |
         mkdir -p builds
         export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
-        ./godot --headless --path . --export-debug "Android" builds/${EXPORT_NAME}.apk 2>&1 | tail -30
+        ./godot --headless --path . --export-debug "Android" builds/${EXPORT_NAME}.apk 2>&1 | tail -40
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
