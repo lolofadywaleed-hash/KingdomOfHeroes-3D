@@ -24,7 +24,9 @@ jobs:
       - name: Install Android build template
         run: |
           cd $GITHUB_WORKSPACE
+          rm -rf android/
           unzip -o ~/.local/share/godot/export_templates/4.7.2.stable/android_source.zip -d android/
+          ls android/build.gradle
       - name: Keystore
         run: |
           keytool -genkeypair -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
@@ -33,7 +35,7 @@ jobs:
           mkdir -v -p build/android
           EXPORT_DIR="$(readlink -f build)"
           cd $GITHUB_WORKSPACE
-          godot --headless --verbose --export-debug "Android" "$EXPORT_DIR/android/KingdomOfHeroes-3D.apk" 2>&1 | tail -40
+          godot --headless --verbose --path $GITHUB_WORKSPACE --export-debug "Android" "$EXPORT_DIR/android/KingdomOfHeroes-3D.apk" 2>&1 | tail -40
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
