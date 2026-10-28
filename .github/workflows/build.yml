@@ -26,12 +26,7 @@ jobs:
           cd $GITHUB_WORKSPACE
           rm -rf android/
           unzip -o ~/.local/share/godot/export_templates/4.7.2.stable/android_source.zip -d android/
-          # Try to commit using gh CLI
-          git config user.email "action@github.com"
-          git config user.name "GitHub Action"
-          git add android/
-          git commit -m "ci: add android build template" || echo "No changes"
-          git push origin main || echo "Push failed"
+          echo "Template installed"
       - name: Keystore
         run: |
           keytool -genkeypair -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
