@@ -1,3 +1,2 @@
-// Minimal Android build template placeholder
-// This file is replaced by the actual template during CI
-apply from: "config.gradle"
+apply from: "../export_presets.gradle"
+// Minimal placeholder - replaced by CI template extraction
