@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android
 
 on:
   push:
@@ -6,33 +6,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  android:
+  export:
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.7.2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
-      - name: Setup
+      - name: Setup templates
         run: |
-          export GODOT_VERSION=4.7.2
-          mkdir -p ~/.local/share/godot/export_templates/
-          if [ -d /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ]; then
-            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/ 2>/dev/null || true
-          fi
-          
-      - name: Create keystore
+          mkdir -p /github/home/.local/share/godot/export_templates
+          cp -r /root/.local/share/godot/export_templates/* /github/home/.local/share/godot/export_templates/ 2>&1 | tail -2
+      - name: Keystore
         run: |
-          rm -f /root/debug.keystore debug.keystore
-          keytool -genkeypair -v -keystore /root/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-          cp /root/debug.keystore debug.keystore
-          
+          keytool -genkeypair -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" -noprompt
       - name: Build
         run: |
           mkdir -p builds
-          godot --headless --path . --export-debug "Android" builds/KingdomOfHeroes-3D.apk 2>&1 | tail -50
-          
+          godot --headless --path $GITHUB_WORKSPACE --export-debug "Android" $GITHUB_WORKSPACE/builds/KingdomOfHeroes-3D.apk 2>&1 | tail -80
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
