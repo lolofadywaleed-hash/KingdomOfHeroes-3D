@@ -16,18 +16,22 @@ jobs:
         
       - name: Setup
         run: |
+          export GODOT_VERSION=4.7.2
           mkdir -p ~/.local/share/godot/export_templates/
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/ 2>/dev/null || true
+          if [ -d /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ]; then
+            cp -r /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/ 2>/dev/null || true
+          fi
           
       - name: Create keystore
         run: |
+          rm -f /root/debug.keystore debug.keystore
           keytool -genkeypair -v -keystore /root/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           cp /root/debug.keystore debug.keystore
           
       - name: Build
         run: |
           mkdir -p builds
-          godot --headless --path . --export-debug "Android" builds/KingdomOfHeroes-3D.apk 2>&1 | tail -40
+          godot --headless --path . --export-debug "Android" builds/KingdomOfHeroes-3D.apk 2>&1 | tail -50
           
       - name: Upload
         uses: actions/upload-artifact@v4
