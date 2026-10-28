@@ -15,7 +15,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
-          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates/
@@ -27,9 +26,9 @@ jobs:
           cd $GITHUB_WORKSPACE
           rm -rf android/
           unzip -o ~/.local/share/godot/export_templates/4.7.2.stable/android_source.zip -d android/
-          git config user.email "ci@example.com"
-          git config user.name "CI"
-          git add android/
+          git config user.email "ci@example.com" || true
+          git config user.name "CI" || true
+          git add android/ || true
           git commit -m "ci: add android build template" || true
           git push origin main || true
       - name: Keystore
