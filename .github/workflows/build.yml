@@ -26,11 +26,11 @@ jobs:
           cd $GITHUB_WORKSPACE
           rm -rf android/
           unzip -o ~/.local/share/godot/export_templates/4.7.2.stable/android_source.zip -d android/
-          git config user.email "ci@example.com" || true
-          git config user.name "CI" || true
-          git add android/ || true
-          git commit -m "ci: add android build template" || true
-          git push origin main || true
+      - name: Upload android template
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-template
+          path: android/
       - name: Keystore
         run: |
           keytool -genkeypair -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
@@ -40,7 +40,7 @@ jobs:
           EXPORT_DIR="$(readlink -f build)"
           cd $GITHUB_WORKSPACE
           godot --headless --verbose --path $GITHUB_WORKSPACE --export-debug "Android" "$EXPORT_DIR/android/KingdomOfHeroes-3D.apk" 2>&1 | tail -40
-      - name: Upload
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: KingdomOfHeroes-3D-APK
