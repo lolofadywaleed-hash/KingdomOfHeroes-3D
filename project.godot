@@ -22,6 +22,10 @@ window/size/viewport_height=720
 window/size/resizable=false
 window/stretch/mode="canvas_items"
 
+[autoload]
+
+Global="*res://scripts/global.gd"
+
 [rendering]
 
 renderer/rendering_method="forward_plus"
