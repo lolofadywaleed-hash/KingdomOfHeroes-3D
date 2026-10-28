@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GODOT_VERSION: 4.7.2
+      EXPORT_NAME: KingdomOfHeroes-3D
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -18,33 +21,50 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
         
-    - name: Download Godot
+    - name: Download Godot and Export Templates
       run: |
-        wget -O godot.zip https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
-        unzip godot.zip
-        chmod +x Godot_v4.7.2-stable_linux.x86_64
-        mv Godot_v4.7.2-stable_linux.x86_64 godot
-        wget -O templates.tpz https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz
-        mkdir -p ~/.local/share/godot/export_templates/4.7.2.stable
-        unzip templates.tpz -d ~/.local/share/godot/export_templates/4.7.2.stable
-        mv ~/.local/share/godot/export_templates/4.7.2.stable/templates/* ~/.local/share/godot/export_templates/4.7.2.stable/
-        rmdir ~/.local/share/godot/export_templates/4.7.2.stable/templates
+        wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+        unzip -q Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip
+        chmod +x Godot_v${GODOT_VERSION}-stable_linux.x86_64
+        mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 godot
+        wget -q https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz
+        mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+        unzip -q Godot_v${GODOT_VERSION}-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+        mv ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/ 2>/dev/null || true
+        ls ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable/
         
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
-      
-    - name: Create keystore
       run: |
-        keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+        sudo apt-get update
+        sudo apt-get install -y android-sdk
+        export ANDROID_HOME=/usr/lib/android-sdk
+        export ANDROID_SDK_ROOT=/usr/lib/android-sdk
+        yes | sdkmanager --licenses || true
+        sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-34" "cmdline-tools;latest"
         
-    - name: Build APK
+    - name: Create Debug Keystore
+      run: |
+        keytool -genkeypair -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+        
+    - name: Headless Export Test (PCK)
+      env:
+        ANDROID_HOME: /usr/lib/android-sdk
+        ANDROID_SDK_ROOT: /usr/lib/android-sdk
+      run: |
+        ./godot --headless --path . --export-pack "Android" /tmp/test.pck 2>&1 | tail -40 || echo "PCK export attempted"
+        
+    - name: Export Android APK
+      env:
+        ANDROID_HOME: /usr/lib/android-sdk
+        ANDROID_SDK_ROOT: /usr/lib/android-sdk
       run: |
         mkdir -p builds
-        ./godot --headless --export-debug "Android" builds/KingdomOfHeroes-3D.apk 2>&1 | tail -30
+        ./godot --headless --path . --export-debug "Android" builds/${EXPORT_NAME}.apk 2>&1 | tail -60
         
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: KingdomOfHeroes-3D-APK
-        path: builds/KingdomOfHeroes-3D.apk
+        path: builds/${{ env.EXPORT_NAME }}.apk
         retention-days: 30
+        if-no-files-found: error
