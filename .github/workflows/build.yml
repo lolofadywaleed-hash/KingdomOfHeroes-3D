@@ -21,14 +21,21 @@ jobs:
           mkdir -v -p ~/.config/
           mv /root/.config/godot ~/.config/godot
           mv /root/.local/share/godot/export_templates/4.7.2.stable ~/.local/share/godot/export_templates/4.7.2.stable
+      - name: Install Android build template
+        run: |
+          cd $GITHUB_WORKSPACE
+          rm -rf android/
+          unzip -o ~/.local/share/godot/export_templates/4.7.2.stable/android_source.zip -d android/
+          # Commit android folder to repo so Godot recognizes it
+          git config user.email "ci@example.com"
+          git config user.name "CI"
+          git add android/
+          git commit -m "ci: add android build template" || true
+          git push origin main || true
       - name: Keystore
         run: |
           keytool -genkeypair -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-      - name: Build PCK first
-        run: |
-          mkdir -v -p build/pck
-          godot --headless --path $GITHUB_WORKSPACE --export-pack "Android" build/pck/KingdomOfHeroes-3D.pck 2>&1 | tail -20
-      - name: Build APK
+      - name: Build
         run: |
           mkdir -v -p build/android
           EXPORT_DIR="$(readlink -f build)"
